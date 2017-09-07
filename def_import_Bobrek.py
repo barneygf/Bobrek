@@ -9,7 +9,7 @@ import scipy.io
 import numpy as np
 import pandas as pd
 
-def import_seeds(path_begin = 'e:\Maciek_Barnas\Bobrek\\01.2010_ML1.2_Z-600\\'):  # Path to folder with .seed files
+def import_seeds(path_begin = '01.2010_ML1.2_Z-600/'):  # Path to folder with .seed files
     for root, dirs, files in os.walk(path_begin):
         a = files  # Get list of files (in this case - seeds) in folder
 
