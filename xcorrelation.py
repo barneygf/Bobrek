@@ -8,3 +8,4 @@ ssadasdasd
 @author: R_Czarny
 """
 print(0)
+print('Hello')
