@@ -1,7 +1,7 @@
-'''Maciej Barnaś, maciej.michal.barnas@gmail.com
-Program plots stations and events from 2010 year, with local magnitude greater than 1.2 in Bobrek coal mine (data from
-IS-EPOS platform).
-Last edit: 2017-05-24'''
+"""Maciej Barnaś, maciej.michal.barnas@gmail.com
+Program plots stations and events from 2010 year, with local magnitude greater than 1.2, below the 600 m b.s. l in
+Bobrek coal mine (data from IS-EPOS platform).
+Last edit: 2017-10-02"""
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,6 +9,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.basemap import pyproj
 from datetime import datetime
 from def_import_Bobrek import import_events, import_stations
+from numpy import arange
+
+print(__doc__)
 
 Bobr = import_events(file='BOBREK_catalog_01.2010_ML1.2_Z-600.mat')  # Importing events from Matlab file
 stations = import_stations()
@@ -28,24 +31,22 @@ for lab, row in Bobr.iterrows():
 
 Bobr[['nr']] = Bobr[['nr']].apply(pd.to_numeric)
 
-print(Bobr)
-print(stations)
-
 fig = plt.figure()
-ax = fig.add_subplot(121, projection='3d')
+ax1 = fig.add_subplot(121, projection='3d')
 plt.tight_layout()
-ax.scatter(Bobr['Y_2000'], Bobr['X_2000'], Bobr['Z'], s=30*Bobr['ML'], c=Bobr['ML'], cmap='rainbow')
-ax.scatter(stations['Y_2000'], stations['X_2000'], stations['Elevation'], marker='^', s=40, color='r')
+ax1.scatter(Bobr['Y_2000'], Bobr['X_2000'], Bobr['Z'], s=30*Bobr['ML'], c=Bobr['ML'], cmap='rainbow')
+ax1.scatter(stations['Y_2000'], stations['X_2000'], stations['Elevation'], marker='^', s=40, color='r')
 
 for lab, row in stations.iterrows():
-    ax.text(stations.loc[lab, 'Y_2000']+3, stations.loc[lab, 'X_2000']+3, stations.loc[lab, 'Elevation']+3,
+    ax1.text(stations.loc[lab, 'Y_2000']+3, stations.loc[lab, 'X_2000']+3, stations.loc[lab, 'Elevation']+3,
             stations.loc[lab, 'Code'])
 
-#ax.set_xlabel('Latitide [\u00b0]')
-#ax.set_ylabel('Longitude [\u00b0]')
-ax.set_xlabel('Y [m]')
-ax.set_ylabel('X [m]')
-ax.set_zlabel('Z [m]', labelpad=12)
+# ax1.set_xlabel('Latitide [\u00b0]')
+# ax1.set_ylabel('Longitude [\u00b0]')
+ax1.set_xlabel('Y [m]')
+ax1.set_ylabel('X [m]')
+ax1.set_zlabel('Z [m]', labelpad=20)
+ax1.tick_params(axis='z', pad=12)
 max_lat = 50.3716
 min_lat = 50.3432
 max_long = 18.8982
@@ -54,30 +55,46 @@ min_X_2000 = 5.57871e+06
 max_X_2000 = 5.58212e+06
 min_Y_2000 = 6.55971e+06
 max_Y_2000 = 6.56377e+06
-ax.set_xlim([min_Y_2000, max_Y_2000])
-ax.set_ylim([min_X_2000, max_X_2000])
+x_ticks = arange(5.579e6, 5.579e6+3500, 500)
+y_ticks = arange(6.56e6, 6.56e6+4000, 500)
+ax1.set_xlim([min_Y_2000, max_Y_2000])
+ax1.set_ylim([min_X_2000, max_X_2000])
+ax1.set_xticks(y_ticks)
+ax1.set_yticks(x_ticks)
 
-ax = fig.add_subplot(122)
-#D = ax.scatter(Bobr2['Y_2000'], Bobr2['X_2000'], c=Bobr2['ML'], cmap='rainbow', s=30)
-#ax.scatter(stations['Y_2000'], stations['X_2000'], marker='^', s=40, color='r')
-D = ax.scatter(Bobr['Long'], Bobr['Lat'], c=Bobr['ML'], cmap='rainbow', s=30)
-ax.scatter(stations['Longitude'], stations['Latitude'], marker='^', s=40, color='r')
-plt.plot([18.8670, 18.8717], [50.3547, 50.3546], c='y', linewidth=5)
-plt.plot([18.8670, 18.8717], [50.3515, 50.3515], c='y', linewidth=5)
-
-#for lab, row in stations.iterrows():
-#    ax.text(stations.loc[lab, 'Y_2000']+3, stations.loc[lab, 'X_2000']+3, stations.loc[lab, 'Code'])
+ax2 = fig.add_subplot(122)
+#D = ax2.scatter(Bobr2['Y_2000'], Bobr2['X_2000'], c=Bobr2['ML'], cmap='rainbow', s=30)
+#ax2.scatter(stations['Y_2000'], stations['X_2000'], marker='^', s=40, color='r')
+#D = ax2.scatter(Bobr['Long'], Bobr['Lat'], c=Bobr['ML'], cmap='rainbow', s=30)
+D = ax2.scatter(Bobr['Y_2000'], Bobr['X_2000'], c=Bobr['ML'], cmap='rainbow', s=30)
+ax2.scatter(stations['Longitude'], stations['Latitude'], marker='^', s=40, color='r')
+ax2.scatter(stations['Y_2000'], stations['X_2000'], marker='^', s=40, color='r')
+#plt.plot([18.8670, 18.8717], [50.3547, 50.3546], c='y', linewidth=5)
+#plt.plot([18.8670, 18.8717], [50.3515, 50.3515], c='y', linewidth=5)
 
 for lab, row in stations.iterrows():
-    ax.text(stations.loc[lab, 'Longitude'], stations.loc[lab, 'Latitude'], stations.loc[lab, 'Code'])
+   ax2.text(stations.loc[lab, 'Y_2000']+3, stations.loc[lab, 'X_2000']+3, stations.loc[lab, 'Code'])
 
-#ax.set_xlabel('Y [m]')
-#ax.set_ylabel('X [m]')
-ax.set_xlabel('Longitude [\u00b0]')
-ax.set_ylabel('Latitude [\u00b0]')
+# for lab, row in stations.iterrows():
+#     ax2.text(stations.loc[lab, 'Longitude'], stations.loc[lab, 'Latitude'], stations.loc[lab, 'Code'])
+
+ax2.set_xlabel('Y [m]')
+ax2.set_ylabel('X [m]')
+# ax2.set_xlabel('Longitude [\u00b0]')
+# ax2.set_ylabel('Latitude [\u00b0]')
 cbar = fig.colorbar(D, orientation='horizontal')
 cbar.set_label('Local magnitude')
-ax.set_xlim([min_long, max_long])
-ax.set_ylim([min_lat, max_lat])
+# ax2.set_xlim([min_long, max_long])
+# ax2.set_ylim([min_lat, max_lat])
+ax2.set_xlim([min_Y_2000, max_Y_2000])
+ax2.set_ylim([min_X_2000, max_X_2000])
+ax2.set_xticks(y_ticks)
+ax2.set_yticks(x_ticks)
+ax2.grid()
+
+plt.figtext(0.5, 0.03, 'Figure 1. Seismic events with magnitude higher than 1.2 and location below 600 m b.s.l. '
+                        '(points) - color responds magnitude; stations - red triangles with labels; on the left - 3D '
+                        'plot, on the right - 2D map',
+            horizontalalignment='center', fontsize=11, style='italic', backgroundcolor='w')
 
 plt.show()
