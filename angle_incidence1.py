@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from math import ceil
 from cm2inch import cm2inch
+from matplotlib import gridspec
 
 events = import_events(file='BOBREK_catalog_01.2010_ML1.2_Z-600.mat')
 stations = import_stations()
@@ -100,9 +101,11 @@ Z_cubic = 0.5 * cubic_range * np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5 
 plt.figure(1)
 plt.scatter(x, angle_deg)
 
-fig = plt.figure(2, figsize=cm2inch(40, 30))
-ax = fig.add_subplot(111, projection='3d')
-plt.tight_layout()
+fig = plt.figure(2, figsize=cm2inch(55, 30))
+#plt.tight_layout()
+gs = gridspec.GridSpec(2, 3)
+#ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(gs[:, :2], projection='3d')
 plt.axis('equal')
 ax.scatter(events['X_2000'], events['Y_2000'], events['Z'], s=30, c=events['Time'], cmap='rainbow')
 #ax.scatter(events.iloc[:, 12], events.iloc[:, 11], events.iloc[:, 10], s=30, c=events['Time'], cmap='rainbow')
@@ -113,6 +116,9 @@ ax.plot(line2[:, 0], line2[:, 1], line2[:, 2])
 for xc, yc, zc in zip(X_cubic, Y_cubic, Z_cubic):
    ax.plot([xc], [yc], [zc], 'w')
 
+ax.set_xlabel('X [m]')
+ax.set_ylabel('Y [m]')
+ax.set_zlabel('Z [m]')
 plt.xticks(np.arange(ceil(min(cubic[:, 0]) / 200) * 200 - 200, ceil(max(cubic[:, 0]) / 200) * 200 + 200, 200))
 plt.yticks(np.arange(ceil(min(cubic[:, 1]) / 200) * 200 - 200, ceil(max(cubic[:, 1]) / 200) * 200 + 200, 200))
 #plt.zticks(np.arange(ceil(min(cubic[:, 2]) / 200) * 200, ceil(max(cubic[:, 2]) / 200) * 200, 200))
@@ -130,16 +136,23 @@ print('k2: ', k2)
 
 print('denominator: ', denominator)
 
-plt.figure(3)
-plt.hist(angle_deg, 10)
-plt.xlabel('Angle [$^\circ$C]')
-plt.ylabel('Number of events with given angle')
-plt.title('Histogram')
+ax2 = fig.add_subplot(gs[0, 2])
+ax2.hist(angle_deg, 10)
+ax2.set_xlabel('Angle [$^\circ$C]')
+ax2.set_ylabel('Number of events with given angle')
+ax2.set_title('Histogram')
 
-plt.figure(4)
-plt.hist(angle_deg, 10, cumulative=True, color='g')
-plt.xlabel('Angle [$^\circ$C]')
-plt.ylabel('Number of cumulative events with given angle')
-plt.title('Cumulative histogram')
+ax3 = fig.add_subplot(gs[1, 2])
+ax3.hist(angle_deg, 10, cumulative=True, color='g')
+ax3.set_xlabel('Angle [$^\circ$C]')
+ax3.set_ylabel('Number of cumulative events with given angle')
+ax3.set_title('Cumulative histogram')
 
+plt.figtext(0.001, 0.03, 'Figure 4. On the left - chosen seismic events (ML > 1.2, z < 800 m b.s.l.),  stations (S013, '
+                       'S015) - red triangles, and angle of incidence between two stations and some event (example);\n'
+                       'Right upper - histogram of angles of incidence (angle between green and blue lines on the 3D '
+                       'plot) for all chosen events\nRight down - same as upper, but this is cumulative histogram',
+            horizontalalignment='left', fontsize=11, style='italic', backgroundcolor='w')
+
+plt.tight_layout()
 plt.show()
